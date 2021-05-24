@@ -37,7 +37,7 @@ COPY environment.yml /
 RUN conda update -n base -c defaults conda
 RUN conda env create -f /environment.yml && conda clean -a
 RUN mkdir -p /project /nl /mnt /share
-ENV PATH /opt/conda/envs/dolphinnext-cellranger-3.0/bin:/usr/local/bin/dolphin-tools/:$PATH
+ENV PATH /opt/conda/envs/dolphinnext-cellranger-4.0/bin:/usr/local/bin/dolphin-tools/:$PATH
 
 
  
