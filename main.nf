@@ -3,6 +3,7 @@ params.outdir = 'results'
 
 //* params.genome_build =  ""  //* @dropdown @options:"human_hg19_GRCh37_87, human_hg38_gencode_v28, human_hg38_gencode_v32_cellranger_v6, mouse_mm10_GRCm38_93, mouse_mm10_gencode_vm23_cellranger_v6, zebrafish_GRCz11plus_ensembl, zebrafish_GRCz11refSeqUcsc, zebrafish_GRCz11_v4.3.2, zebrafish_GRCz11_v4.3.2_cellranger_v6, d_melanogaster_dm6_refseq_010519_cellranger_v6, d_melanogaster_BDGP6_32_ensembl_105_cellranger_v6, d_melanogaster_flybase_r6_45_cellranger_v6, custom"
 
+
 _species = ""
 _build = ""
 _share = ""
@@ -107,6 +108,7 @@ input:
 output:
  file '*.{html,zip}'  into g_9_FastQCout0_g_12
 
+
 errorStrategy 'retry'
 maxRetries 3
 
@@ -147,6 +149,7 @@ input:
 
 output:
  file "multiqc_report.html" optional true  into g_12_outputHTML00
+
 
 errorStrategy 'ignore'
 
@@ -289,6 +292,7 @@ input:
 output:
  file "${aggregate_run_id}/outs"  into g_15_outputDir00
  file "${aggregate_run_id}/outs/web_summary.html"  into g_15_outputHTML11
+
 
 when:
 params.run_Aggregate_Libraries == "yes"

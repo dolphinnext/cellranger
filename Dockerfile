@@ -48,3 +48,5 @@ RUN cd /usr/bin && \
     wget https://galaxyweb.umassmed.edu/pub/software/cellranger-atac-2.0.0.tar.gz && \
     tar -xzvf cellranger-atac-2.0.0.tar.gz
 ENV PATH /usr/bin/cellranger-7.0.0:/usr/bin/cellranger-atac-2.0.0:$PATH
+
+
