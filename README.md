@@ -1,4 +1,4 @@
-Cell Ranger (v3.1.0) is a set of analysis pipelines that process Chromium single-cell RNA-seq output to align reads, generate feature-barcode matrices and perform clustering and gene expression analysis. 
+Cell Ranger (v7.0.0) is a set of analysis pipelines that process Chromium single-cell RNA-seq output to align reads, generate feature-barcode matrices and perform clustering and gene expression analysis. 
 
 Steps:
   1. Cellranger count takes FASTQ files performs alignment, filtering, barcode counting, and UMI counting. It uses the Chromium cellular barcodes to generate feature-barcode matrices, determine clusters, and perform gene expression analysis.  cellranger count also processes Feature Barcoding data alongside Gene Expression reads.
@@ -17,8 +17,16 @@ Yukselen, O., Turkyilmaz, O., Ozturk, A.R. et al. DolphinNext: a distributed dat
 
 
 Program Versions:
-  - Cellranger-v3.1.0
+  - Cellranger-v7.0.0
+  - fastqc=0.11.8
+  - multiqc=1.7
+  - Cellranger-atac-2.0.0.
+  - bcl2fastq2=2.20.0.422
+  - samtools=1.3
+  - igvtools=2.5.3
+  - bedtools=2.30.0
 
-Singularity Image: 
-  - UMMS-Biocore-singularity-cellranger-v2.simg
-  - Md5Sum: 15c96498d724640defa187c38ea0ca67
+Containers:
+  - Docker: dolphinnext/cellranger:6.0
+  - Singularity: https://galaxyweb.umassmed.edu/pub/dolphinnext_singularity/UMMS-Biocore-singularity-cellranger-v6.simg
+
