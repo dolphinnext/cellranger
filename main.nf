@@ -1,7 +1,8 @@
 $HOSTNAME = ""
 params.outdir = 'results'  
 
-//* params.genome_build =  ""  //* @dropdown @options:"human_hg19_GRCh37_87, human_hg38_gencode_v28, human_hg38_gencode_v32_cellranger_v6, mouse_mm10_GRCm38_93, mouse_mm10_gencode_vm23_cellranger_v6, zebrafish_GRCz11plus_ensembl, zebrafish_GRCz11refSeqUcsc, zebrafish_GRCz11_v4.3.2, zebrafish_GRCz11_v4.3.2_cellranger_v6, d_melanogaster_dm6_refseq_010519_cellranger_v6, custom"
+//* params.genome_build =  ""  //* @dropdown @options:"human_hg19_GRCh37_87, human_hg38_gencode_v28, human_hg38_gencode_v32_cellranger_v6, mouse_mm10_GRCm38_93, mouse_mm10_gencode_vm23_cellranger_v6, zebrafish_GRCz11plus_ensembl, zebrafish_GRCz11refSeqUcsc, zebrafish_GRCz11_v4.3.2, zebrafish_GRCz11_v4.3.2_cellranger_v6, d_melanogaster_dm6_refseq_010519_cellranger_v6, d_melanogaster_BDGP6_32_ensembl_105_cellranger_v6, d_melanogaster_flybase_r6_45_cellranger_v6, custom"
+
 
 _species = ""
 _build = ""
@@ -38,6 +39,12 @@ if (params.genome_build == "human_hg19_GRCh37_87"){
 } else if (params.genome_build == "d_melanogaster_dm6_refseq_010519_cellranger_v6"){
     _species = "d_melanogaster"
     _build = "dm6_refseq_010519_cellranger_v6"
+} else if (params.genome_build == "d_melanogaster_BDGP6_32_ensembl_105_cellranger_v6"){
+    _species = "d_melanogaster"
+    _build = "BDGP6_32_ensembl_105_cellranger_v6"
+} else if (params.genome_build == "d_melanogaster_flybase_r6_45_cellranger_v6"){
+    _species = "d_melanogaster"
+    _build = "flybase_r6_45_cellranger_v6"
 }
 
 
@@ -75,10 +82,15 @@ if ($HOSTNAME){
 if (!params.reads){params.reads = ""} 
 if (!params.mate){params.mate = ""} 
 
+if (params.reads){
 Channel
 	.fromFilePairs( params.reads , size: params.mate == "single" ? 1 : params.mate == "pair" ? 2 : params.mate == "triple" ? 3 : params.mate == "quadruple" ? 4 : -1 )
 	.ifEmpty { error "Cannot find any reads matching: ${params.reads}" }
 	.into{g_1_reads_g_5;g_1_reads_g_9}
+ } else {  
+	g_1_reads_g_5 = Channel.empty()
+	g_1_reads_g_9 = Channel.empty()
+ }
 
 Channel.value(params.mate).into{g_2_mate_g_5;g_2_mate_g_9}
 
@@ -94,7 +106,8 @@ input:
  set val(name), file(reads) from g_1_reads_g_9
 
 output:
- file '*.{html,zip}'  into g_9_FastQCout_g_12
+ file '*.{html,zip}'  into g_9_FastQCout0_g_12
+
 
 errorStrategy 'retry'
 maxRetries 3
@@ -132,10 +145,11 @@ process MultiQC {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /multiqc_report.html$/) "multiQC/$filename"}
 input:
- file "fastqc/*" from g_9_FastQCout_g_12.flatten().toList()
+ file "fastqc/*" from g_9_FastQCout0_g_12.flatten().toList()
 
 output:
- file "multiqc_report.html" optional true  into g_12_outputHTML0
+ file "multiqc_report.html" optional true  into g_12_outputHTML00
+
 
 errorStrategy 'ignore'
 
@@ -186,9 +200,9 @@ input:
  val mate from g_2_mate_g_5
 
 output:
- file "${name}_outs"  into g_5_outputDir_g_15
- file "${name}_web_summary.html"  into g_5_outputHTML1
- file "${name}_filtered_feature_bc_matrix" optional true  into g_5_outputFile2
+ file "${name}_outs"  into g_5_outputDir0_g_15
+ file "${name}_web_summary.html"  into g_5_outputHTML11
+ file "${name}_filtered_feature_bc_matrix" optional true  into g_5_outputFile22
 
 when:
 params.run_Cell_Ranger_Count == "yes"
@@ -219,6 +233,7 @@ if (mate == "pair"){
     mvReads = "mv " +read1 +" reads/"+ name + "_S1_L001_R1_001.fastq.gz"
 }
 
+expected_cells_text = (expected_cells.toString() != "") ? "--expect-cells "+ expected_cells : ""
 """
 $runGzip
 mkdir reads
@@ -229,7 +244,7 @@ ${params.cellranger_path} count --id=$name \
                    --transcriptome=${params.transcriptome} \
                    --fastqs=reads \
                    --sample=$sample \
-                   --expect-cells=$expected_cells \
+                   $expected_cells_text \
                    --chemistry=$chemistry $cell_ranger_count_parameters
                    
 
@@ -262,8 +277,8 @@ if ($HOSTNAME == "ghpcc06.umassrc.org"){
 //* platform
 //* autofill
 if (!(params.run_Aggregate_Libraries == "yes")){
-g_5_outputDir_g_15.set{g_15_outputDir0}
-g_15_outputHTML1 = Channel.empty()
+g_5_outputDir0_g_15.set{g_15_outputDir00}
+g_15_outputHTML11 = Channel.empty()
 } else {
 
 
@@ -272,11 +287,12 @@ process Cell_Ranger_Aggr {
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /${aggregate_run_id}\/outs$/) "cellranger_aggr/$filename"}
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /${aggregate_run_id}\/outs\/web_summary.html$/) "aggr_web_summary/$filename"}
 input:
- file "*" from g_5_outputDir_g_15.collect()
+ file "*" from g_5_outputDir0_g_15.collect()
 
 output:
- file "${aggregate_run_id}/outs"  into g_15_outputDir0
- file "${aggregate_run_id}/outs/web_summary.html"  into g_15_outputHTML1
+ file "${aggregate_run_id}/outs"  into g_15_outputDir00
+ file "${aggregate_run_id}/outs/web_summary.html"  into g_15_outputHTML11
+
 
 when:
 params.run_Aggregate_Libraries == "yes"
