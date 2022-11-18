@@ -49,4 +49,5 @@ RUN cd /usr/bin && \
     tar -xzvf cellranger-atac-2.0.0.tar.gz
 ENV PATH /usr/bin/cellranger-7.0.0:/usr/bin/cellranger-atac-2.0.0:$PATH
 
-
+RUN pip install wheel
+RUN pip install pandas

@@ -13,4 +13,7 @@ dependencies:
   - igvtools=2.5.3
   - bedtools=2.30.0
   - multiqc
+  - biopython
+  - python=3.8
+  - requests
 
